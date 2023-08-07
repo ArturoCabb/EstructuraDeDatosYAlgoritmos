@@ -17,7 +17,6 @@ void insertar(int nu) {
         final = nuevo;
     }
     else {
-        nuevo->next = NULL;
         final->next = nuevo;
         final = nuevo;
     }
@@ -27,10 +26,9 @@ void imprime() {
     Lista *aux;
     aux = inicial;
     while (aux != NULL) {
-        printf("%d ", aux->numero);
+        std::cout << aux->numero << std::endl;
         aux = aux->next;
     }
-    printf("\n");
 }
 
 int main() {
