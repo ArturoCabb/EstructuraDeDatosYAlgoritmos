@@ -5,9 +5,8 @@
 struct Lista {
     int numero;
     int edad;
-    Lista *siguiente;
-    Lista *anterior;
-} *inicial, *final, *antes, *nuevo;
+    Lista *siguiente, *anterior;
+} *inicial, *final, *nuevo;
 
 void insertar(int nu, int ed){
     nuevo = new Lista;
@@ -18,14 +17,29 @@ void insertar(int nu, int ed){
     if (inicial == NULL)
     {
         inicial = nuevo;
-        antes = NULL;
         final = nuevo;
     }
     else {
-        final->anterior = final;
+        final->siguiente = nuevo;
+        nuevo->anterior = final;
+        final = nuevo;
+    }
+}
+
+void imprime() {
+    Lista *aux;
+    aux = final;
+    while (aux != NULL) {
+        std::cout << aux->numero << " tiene la edad de: " << aux->edad << std::endl;
+        aux = aux->anterior;
     }
 }
 
 int main() {
+    insertar(5, 10);
+    insertar(10, 20);
+    insertar(2, 15);
+    imprime();
+
     return 0;
 }
