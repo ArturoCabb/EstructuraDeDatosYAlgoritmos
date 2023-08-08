@@ -4,42 +4,42 @@
 
 struct Lista {
     int numero;
-    int edad;
-    Lista *siguiente, *anterior;
-} *inicial, *final, *nuevo;
+    Lista *siguiente = NULL;
+} *inicial;
 
-void insertar(int nu, int ed){
-    nuevo = new Lista;
+void insertarFinal(int nu) {
+    Lista *nuevo = new Lista;
     nuevo->numero = nu;
-    nuevo->edad = ed;
-    nuevo->siguiente = NULL;
-    nuevo->anterior = NULL;
     if (inicial == NULL)
-    {
         inicial = nuevo;
-        final = nuevo;
-    }
     else {
-        final->siguiente = nuevo;
-        nuevo->anterior = final;
-        final = nuevo;
+        Lista *actual = inicial;
+        while (actual->siguiente != NULL)
+            actual = actual->siguiente;
+        actual->siguiente = nuevo;
     }
 }
 
+void insertarInicio(int nu) {
+    Lista *nuevo = new Lista;
+    nuevo->numero = nu;
+    nuevo->siguiente = inicial;
+    inicial = nuevo;
+}
+
 void imprime() {
-    Lista *aux;
-    aux = final;
+    Lista *aux = inicial;
     while (aux != NULL) {
-        std::cout << aux->numero << " tiene la edad de: " << aux->edad << std::endl;
-        aux = aux->anterior;
+        std::cout << aux->numero << std::endl;
+        aux = aux->siguiente;
     }
 }
 
 int main() {
-    insertar(5, 10);
-    insertar(10, 20);
-    insertar(2, 15);
+    insertarFinal(5);
+    insertarFinal(10);
+    insertarFinal(2);
     imprime();
-
+    
     return 0;
 }
