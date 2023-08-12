@@ -63,7 +63,6 @@ class Arbol {
             preorden(r->izquierdo);
             preorden(r->derecho);
         }
-        std::cout << std::endl;
     }
 
     void inorden(NodoArbol *r) {
@@ -72,7 +71,6 @@ class Arbol {
             std::cout << r->dato;
             inorden(r->derecho);
         }
-        std::cout << std::endl;
     }
 
     void postorden(NodoArbol *r) {
@@ -81,7 +79,6 @@ class Arbol {
             postorden(r->derecho);
             std::cout << r->dato;
         }
-        std::cout << std::endl;
     }
 };
 
@@ -90,9 +87,12 @@ int main() {
     miArbol.crearArbol();
     std::cout << "Preorden" << std::endl;
     miArbol.preorden(miArbol.raiz);
+    std::cout << std::endl;
     std::cout << "Inorden" << std::endl;
     miArbol.inorden(miArbol.raiz);
+    std::cout << std::endl;
     std::cout << "Postorden" << std::endl;
     miArbol.postorden(miArbol.raiz);
+    std::cout << std::endl;
     return 0;
 }
