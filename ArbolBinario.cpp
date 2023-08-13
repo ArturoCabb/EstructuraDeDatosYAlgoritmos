@@ -29,42 +29,40 @@ class ArbolBinario {
     NodoArbol *raiz = nullptr;
 
     public:
-    void crearArbolPie(int dato, NodoArbol *r) {
-        if(raiz == nullptr) {
-            NodoArbol *n = new NodoArbol(dato);
-            raiz = n;
-        } else {
-            if (dato < r->dato)
-                crearArbolPie(dato ,r->izquierdo);
-            else if (dato > r->dato)
-                crearArbolPie(dato, r->derecho);
-        }
+    NodoArbol* crearArbolPie(int dato, NodoArbol *r) {
+        if(r == nullptr)
+            r = new NodoArbol(dato);
+        else if (dato < r->dato)
+            r->izquierdo = crearArbolPie(dato ,r->izquierdo);
+        else if (dato > r->dato)
+            r->derecho = crearArbolPie(dato, r->derecho);
+        return r;
     }
-    void eliminar(int dato, NodoArbol *r) {
-        if( r == nullptr) return;
+    NodoArbol* eliminar(int dato, NodoArbol *r) {
+        if( r == nullptr) return nullptr;
         else {
-            if (dato < r->dato) {
-                eliminar(dato, r->izquierdo);
-            }
-            else if (dato > r->dato) {
-                eliminar(dato, r->derecho);
-            }
+            if (dato < r->dato)
+                r = eliminar(dato, r->izquierdo);
+            else if (dato > r->dato)
+                r = eliminar(dato, r->derecho);
             else {
                 if ( r->izquierdo && r->derecho == nullptr) delete(r);
                 else if (cantidadNodos(r) == 1){
-                    if (r->izquierdo) r = r->izquierdo;
-                    else r = r->derecho;
+                    if (r->izquierdo)
+                        r = r->izquierdo;
+                    else
+                        r = r->derecho;
                 }
                 else {
                     NodoArbol *aux = r->izquierdo;
-                    while (aux->derecho != nullptr) {
+                    while (aux->derecho != nullptr)
                         aux = aux->derecho;
-                    }
                     r->dato = aux->dato;
-                    eliminar(aux->dato, r->izquierdo);
+                    r = eliminar(aux->dato, r->izquierdo);
                 }
             }
         }
+        return r;
     }
 
     void verArbol(int n, NodoArbol *r) {
@@ -113,17 +111,19 @@ class ArbolBinario {
     int cantidadHojas(NodoArbol *r) {
         if (r == nullptr) return 0;
         if (r->izquierdo && r->derecho == nullptr) return 2;
-        else return cantidadHojas(r->izquierdo) + cantidadHojas(r->derecho);
+        else
+            return cantidadHojas(r->izquierdo) + cantidadHojas(r->derecho);
     }
 
     int noPadre(NodoArbol *r) {
         if (r == nullptr) return 0;
         if (r->izquierdo && r->derecho == nullptr) return 0;
-        else return noPadre(r->izquierdo) + 1 + noPadre(r->derecho);
+        else
+            return noPadre(r->izquierdo) + 1 + noPadre(r->derecho);
     }
 
     int altura(NodoArbol *r) {
-        if (r == nullptr)return -1 ;
+        if (r == nullptr) return -1;
         else {
             int hi = altura(r->izquierdo);
             int hd = altura(r->derecho);
@@ -135,7 +135,8 @@ class ArbolBinario {
     void topView1(NodoArbol *r, std::map<int, std::pair<int, int> >& m, int distancia, int nivel) {
         if (r == nullptr) return;
 
-        if (m.count(distancia) == 0 || m[distancia].second > nivel) m[distancia] = std::make_pair(r->dato, nivel);
+        if (m.count(distancia) == 0 || m[distancia].second > nivel)
+            m[distancia] = std::make_pair(r->dato, nivel);
 
         topView1(r->izquierdo, m, distancia-1, nivel+1);
         topView1(r->izquierdo, m, distancia+1, nivel-1);
@@ -144,19 +145,22 @@ class ArbolBinario {
     void topView(NodoArbol *r){
 	    std::map<int, std::pair<int, int> > m;
 	    if (r == NULL) return;
-	    else{
+	    else
 	    	topView1(r, m, 0, 0);
-	    }
-	    for (auto i : m){
+	    for (auto i : m)
 	    	std::cout << i.second.first << " ";
-	    }
     }
 };
 
 int main() {
     ArbolBinario arbol;
-    arbol.crearArbolPie(10, arbol.raiz);
+    arbol.raiz = arbol.crearArbolPie(90, arbol.raiz);
+    arbol.raiz = arbol.crearArbolPie(100, arbol.raiz);
+    arbol.raiz = arbol.crearArbolPie(150, arbol.raiz);
+    arbol.raiz = arbol.crearArbolPie(160, arbol.raiz);
+    arbol.raiz = arbol.crearArbolPie(170, arbol.raiz);
+    arbol.raiz = arbol.eliminar(150, arbol.raiz);
     arbol.verArbol(0, arbol.raiz);
-    std::cout << "\n\n Numero de Padres  :  " << arbol.noPadre(arbol.raiz) << std::endl << std::endl;
-    arbol.topView(arbol.raiz);
+    //std::cout << "\n\n Numero de Padres  :  " << arbol.noPadre(arbol.raiz) << std::endl << std::endl;
+    //arbol.topView(arbol.raiz);
 }
