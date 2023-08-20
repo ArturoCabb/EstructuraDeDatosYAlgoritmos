@@ -38,31 +38,142 @@ class ArbolBinario {
             r->derecho = crearArbolPie(dato, r->derecho);
         return r;
     }
-    NodoArbol* eliminar(int dato, NodoArbol *r) {
-        if( r == nullptr) return nullptr;
-        else {
-            if (dato < r->dato)
-                r = eliminar(dato, r->izquierdo);
-            else if (dato > r->dato)
-                r = eliminar(dato, r->derecho);
-            else {
-                if ( r->izquierdo && r->derecho == nullptr) delete(r);
-                else if (cantidadNodos(r) == 1){
-                    if (r->izquierdo)
-                        r = r->izquierdo;
-                    else
-                        r = r->derecho;
-                }
-                else {
-                    NodoArbol *aux = r->izquierdo;
-                    while (aux->derecho != nullptr)
-                        aux = aux->derecho;
-                    r->dato = aux->dato;
-                    r = eliminar(aux->dato, r->izquierdo);
-                }
+    
+    NodoArbol* buscar(int dato, NodoArbol *r) {
+        if (r == nullptr) return nullptr;
+        else if (dato < r->dato)
+            return buscar(dato, r->izquierdo);
+        else if (dato > r->dato)
+            return buscar(dato, r->derecho);
+        else
+            return r;
+    }
+
+    NodoArbol* eliminar(int d, NodoArbol *r)
+    {
+        // Buscamos el elemento(numero)
+        bool SiEncontro = false;
+        if (r == nullptr)
+        {
+            std::cout <<"El Arbol Binario Esta limpio !"<< std::endl;
+            return nullptr;
+        }
+
+        NodoArbol *NoHo;
+        NodoArbol *PadreAB;
+        NoHo = r;
+
+        while (NoHo != NULL)
+        {
+            if (NoHo->dato == d)
+            {
+                SiEncontro = true;
+                break;
+            }
+            else
+            {
+                PadreAB = NoHo;
+                if (d > NoHo->dato)
+                    NoHo = NoHo->derecho;
+                else
+                    NoHo = NoHo->izquierdo;
             }
         }
-        return r;
+        if (!SiEncontro)
+        {
+            std::cout <<"Dato no se encontro" << std::endl;
+            return r;
+        }
+
+        // casos:
+        // 1. Estamos eliminando un nodo hoja
+        // 2. Estamos eliminando un nodo con un solo hijo
+        // 3. estamos eliminando un nodo con 2 hijos
+        // Nodo con uno de los hijos
+
+        if ((NoHo->izquierdo == NULL && NoHo->derecho != NULL) || (NoHo->izquierdo != NULL && NoHo->derecho == NULL))
+        {
+            if (NoHo->izquierdo == NULL && NoHo->derecho != NULL)
+            {
+                if (PadreAB->izquierdo == NoHo)
+                {
+                    PadreAB->izquierdo = NoHo->derecho;
+                    delete NoHo;
+                }
+                else
+                {
+                    PadreAB->derecho = NoHo->derecho;
+                    delete NoHo;
+                }
+            }
+            else // izquierdo hijo esté presente, no hay hijo derecho.
+            {
+                if (PadreAB->izquierdo == NoHo)
+                {
+                    PadreAB->izquierdo = NoHo->izquierdo;
+                    delete NoHo;
+                }
+                else
+                {
+                    PadreAB->derecho = NoHo->izquierdo;
+                    delete NoHo;
+                }
+            }
+            return r;
+        }
+        // Nodo u hoja
+        if (NoHo->izquierdo == NULL && NoHo->derecho == NULL)
+        {
+            if (PadreAB->izquierdo == NoHo)
+                PadreAB->izquierdo = NULL;
+            else
+                PadreAB->derecho = NULL;
+            delete NoHo;
+            return r;
+        }
+
+        // Nodo con 2 hijos
+        //  reemplazar el nodo con menor valor en el subárbol derecho
+        if (NoHo->izquierdo != NULL && NoHo->derecho != NULL)
+        {
+            NodoArbol *chkr;
+            chkr = NoHo->derecho;
+            if ((chkr->izquierdo == NULL) && (chkr->derecho == NULL))
+            {
+                NoHo = chkr;
+                delete chkr;
+                NoHo->derecho = NULL;
+            }
+            else // Si hijo derecho tiene hijos
+            {
+                // si es hijo derecho del nodo tiene un hijo izquierdo
+                // Mover todo el camino a la izquierdo para localizar elemento más pequeño
+                if ((NoHo->derecho)->izquierdo != NULL)
+                {
+                    NodoArbol *lNoHo;
+                    NodoArbol *lNoHop;
+                    lNoHop = NoHo->derecho;
+                    lNoHo = (NoHo->derecho)->izquierdo;
+                    while (lNoHo->izquierdo != NULL)
+                    {
+                        lNoHop = lNoHo;
+                        lNoHo = lNoHo->izquierdo;
+                    }
+                    NoHo->dato = lNoHo->dato;
+                    delete lNoHo;
+                    lNoHop->izquierdo = NULL;
+                }
+                else
+                {
+                    NodoArbol *Temporal;
+                    Temporal = NoHo->derecho;
+                    NoHo->dato = Temporal->dato;
+                    NoHo->derecho = Temporal->derecho;
+                    delete Temporal;
+                }
+            }
+            return r;
+        }
     }
 
     void verArbol(int n, NodoArbol *r) {
@@ -131,25 +242,6 @@ class ArbolBinario {
             else return 1 + hd;
         }
     }
-
-    void topView1(NodoArbol *r, std::map<int, std::pair<int, int> >& m, int distancia, int nivel) {
-        if (r == nullptr) return;
-
-        if (m.count(distancia) == 0 || m[distancia].second > nivel)
-            m[distancia] = std::make_pair(r->dato, nivel);
-
-        topView1(r->izquierdo, m, distancia-1, nivel+1);
-        topView1(r->izquierdo, m, distancia+1, nivel-1);
-    }
-
-    void topView(NodoArbol *r){
-	    std::map<int, std::pair<int, int> > m;
-	    if (r == NULL) return;
-	    else
-	    	topView1(r, m, 0, 0);
-	    for (auto i : m)
-	    	std::cout << i.second.first << " ";
-    }
 };
 
 int main() {
@@ -161,6 +253,8 @@ int main() {
     arbol.raiz = arbol.crearArbolPie(170, arbol.raiz);
     arbol.raiz = arbol.eliminar(150, arbol.raiz);
     arbol.verArbol(0, arbol.raiz);
+    //int dato = arbol.buscar(160, arbol.raiz)->dato;
+    //std::cout << dato << std::endl;
     //std::cout << "\n\n Numero de Padres  :  " << arbol.noPadre(arbol.raiz) << std::endl << std::endl;
     //arbol.topView(arbol.raiz);
 }

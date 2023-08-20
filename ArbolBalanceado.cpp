@@ -34,18 +34,44 @@ class ArbolBalanceadoAVL {
 
     public:
 
-    int altura(NodoArbol *r) {
+    int cantidadNodos(NodoArbol *r) {
+        if ( r == nullptr) return 0;
+        else
+            return 1 + cantidadNodos(r->izquierdo) + cantidadNodos(r->derecho);
+    }
+
+    int cantidadHojas(NodoArbol *r) {
         if (r == nullptr) return 0;
+        if (r->izquierdo && r->derecho == nullptr) return 2;
+        else
+            return cantidadHojas(r->izquierdo) + cantidadHojas(r->derecho);
+    }
+
+    int noPadre(NodoArbol *r) {
+        if (r == nullptr) return 0;
+        if (r->izquierdo && r->derecho == nullptr) return 0;
+        else
+            return noPadre(r->izquierdo) + 1 + noPadre(r->derecho);
+    }
+
+    int altura(NodoArbol *r) {
+        if (r == nullptr) return -1;
         else {
             int hi = altura(r->izquierdo);
             int hd = altura(r->derecho);
-            if (hi > hd) return hi + 1;
-            else return hd + 1;
+            return std::max(hi, hd) + 1;
         }
     }
 
     int factorEquilibrio(NodoArbol *r) {
         return altura(r->derecho) - altura(r->izquierdo);
+    }
+
+    NodoArbol* nodoConValorMaximo(NodoArbol *r) {
+        NodoArbol *actual = r;
+        while (actual->derecho != nullptr)
+            actual = actual->derecho;
+        return actual;
     }
 
     NodoArbol* rotacionSimpleDerecha(NodoArbol *r) {
@@ -55,7 +81,7 @@ class ArbolBalanceadoAVL {
         aux->fe = factorEquilibrio(aux);
         return aux;
     }
-    
+
     NodoArbol* rotacionSimpleIzquierda(NodoArbol *r) {
         NodoArbol *aux = r->derecho;
         r->derecho = aux->izquierdo;
@@ -82,6 +108,16 @@ class ArbolBalanceadoAVL {
     NodoArbol* dobleRotacionDerechaIzquierda(NodoArbol *r) {
         r->derecho = rotacionSimpleIzquierda(r->derecho);
         return rotacionSimpleDerecha(r);
+    }
+
+    NodoArbol* buscar(int dato, NodoArbol *r) {
+        if (r == nullptr) return nullptr;
+        else if (dato < r->dato)
+            return buscar(dato, r->izquierdo);
+        else if (dato > r->dato)
+            return buscar(dato, r->derecho);
+        else
+            return r;
     }
 
     NodoArbol* crearArbolPie(int dato, NodoArbol *r) {
@@ -111,6 +147,54 @@ class ArbolBalanceadoAVL {
         }
         r->fe = factorEquilibrio(r);
         return r;
+    }
+
+    NodoArbol* eliminar(NodoArbol* nodo, int dato) {
+        if (nodo == nullptr)
+            return nodo;
+
+        if (dato < nodo->dato)
+            nodo->izquierdo = eliminar(nodo->izquierdo, dato);
+        else if (dato > nodo->dato)
+            nodo->derecho = eliminar(nodo->derecho, dato);
+        else {
+            if (nodo->izquierdo == nullptr || nodo->derecho == nullptr) {
+                NodoArbol* temp = nodo->izquierdo ? nodo->izquierdo : nodo->derecho;
+                if (temp == nullptr) {
+                    temp = nodo;
+                    nodo = nullptr;
+                } else {
+                    nodo = temp;
+                }
+                delete temp;
+            } else {
+                NodoArbol* temp = nodoConValorMaximo(nodo->izquierdo);
+                nodo->dato = temp->dato;
+                nodo->izquierdo = eliminar(nodo->izquierdo, temp->dato);
+            }
+        }
+
+        if (nodo == nullptr)
+            return nodo;
+
+        // Recalcular altura del nodo actual
+        int balanceFactor = factorEquilibrio(nodo);
+
+        // Realizar rotaciones si es necesario para mantener el balance
+        if (balanceFactor > 1) {
+            if (factorEquilibrio(nodo->izquierdo) >= 0)
+                return rotacionSimpleDerecha(nodo);
+            else
+                return dobleRotacionDerecha(nodo);
+        }
+        if (balanceFactor < -1) {
+            if (factorEquilibrio(nodo->derecho) <= 0)
+                return rotacionSimpleIzquierda(nodo);
+            else
+                return dobleRotacionIzquierda(nodo);
+        }
+
+        return nodo;
     }
 
     void verArbol(int n, NodoArbol *r) {
@@ -158,8 +242,7 @@ int main() {
     arbol.raiz = arbol.crearArbolPie(90, arbol.raiz);
     arbol.raiz = arbol.crearArbolPie(160, arbol.raiz);
     arbol.raiz = arbol.crearArbolPie(170, arbol.raiz);
-    //arbol.raiz = arbol.eliminar(arbol.raiz, 90);
+    arbol.raiz = arbol.eliminar(arbol.raiz, 170);
     arbol.enOrden(arbol.raiz);
-    std::cout << arbol.raiz->fe << std::endl;
     return 0;
 }
