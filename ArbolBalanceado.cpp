@@ -35,7 +35,7 @@ class ArbolBalanceadoAVL {
     public:
 
     int cantidadNodos(NodoArbol *r) {
-        if ( r == nullptr) return 0;
+        if (r == nullptr) return 0;
         else
             return 1 + cantidadNodos(r->izquierdo) + cantidadNodos(r->derecho);
     }
